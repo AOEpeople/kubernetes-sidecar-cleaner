@@ -1,5 +1,11 @@
 # Changelog
 
+## Version v0.1.1 (2022-02-13)
+
+### Chores and tidying
+
+- chore: add resource requests and limits (4e28e65a)
+
 ## Version v0.1.0 (2022-02-13)
 
 ### Features
