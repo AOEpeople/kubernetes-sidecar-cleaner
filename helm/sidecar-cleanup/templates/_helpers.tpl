@@ -36,9 +36,8 @@ Common labels
 {{- define "sidecar-cleanup.labels" -}}
 helm.sh/chart: {{ include "sidecar-cleanup.chart" . }}
 {{ include "sidecar-cleanup.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
+version: {{ (split ":" .Values.image)._1 | default "latest" }}
+app.kubernetes.io/version: {{ (split ":" .Values.image)._1 | default "latest" }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
@@ -46,6 +45,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "sidecar-cleanup.selectorLabels" -}}
+service.bare.id/app: {{ include "sidecar-cleanup.name" . }}
 app.kubernetes.io/name: {{ include "sidecar-cleanup.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
