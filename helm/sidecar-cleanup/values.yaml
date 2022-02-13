@@ -6,7 +6,8 @@ replicaCount: 1
 
 image: ""
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: aws-eks
 nameOverride: ""
 fullnameOverride: ""
 
