@@ -1,0 +1,8 @@
+include:
+  - project: "project/cybersecurity/bare-id/_gitlab"
+    file: "/pipelines/build-release-golang.yml"
+
+variables:
+  BAREID_DC_MULTIREGION: "true"
+  RELEASE_NAME: "${CI_PROJECT_NAME}"
+  RELEASE_NAMESPACE: "cluster-admission"
