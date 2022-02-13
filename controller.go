@@ -116,7 +116,7 @@ func (c *Controller) Run(workers int, stopCh chan struct{}) {
 
 	// Wait for all involved caches to be synced, before processing items from the queue is started
 	if !cache.WaitForCacheSync(stopCh, c.informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
+		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
 

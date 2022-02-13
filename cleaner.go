@@ -48,12 +48,15 @@ func (c *Cleaner) ProcessCallback() CleanerCallback {
 				TTY:       true,
 			}, scheme.ParameterCodec)
 		exec, err := remotecommand.NewSPDYExecutor(c.restCfg, "POST", request.URL())
+		if err != nil {
+			return fmt.Errorf("%w failed running the exec on %v/%v\n%s\n%s", err, pod.Namespace, pod.Name, buf.String(), errBuf.String())
+		}
 		err = exec.Stream(remotecommand.StreamOptions{
 			Stdout: buf,
 			Stderr: errBuf,
 		})
 		if err != nil {
-			return fmt.Errorf("%w Failed executing on %v/%v\n%s\n%s", err, pod.Namespace, pod.Name, buf.String(), errBuf.String())
+			return fmt.Errorf("%w failed executing on %v/%v\n%s\n%s", err, pod.Namespace, pod.Name, buf.String(), errBuf.String())
 		}
 		return nil
 	}
