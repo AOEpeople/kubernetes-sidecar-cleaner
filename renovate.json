@@ -2,5 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>project/cybersecurity/team/tools/renovate//presets/default"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "k8s.io/client-go"
+      ],
+      "excludePackagePrefixes": ["kubernetes-"]
+    }
   ]
 }
