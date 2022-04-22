@@ -92,7 +92,7 @@ func hasIstioSidecar(pod *v1.Pod) bool {
 }
 
 func hasEmbeddedSidecarCleanup(pod *v1.Pod) bool {
-	if val, ok := pod.Annotations["mesh.bare.id/sidecar-cleanup"]; ok {
+	if val, ok := pod.Annotations["aoe.com/sidecar-cleaner"]; ok {
 		return val == "embedded"
 	}
 	return false

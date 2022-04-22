@@ -1,9 +1,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "sidecar-cleanup.fullname" . }}
+  name: {{ include "sidecar-cleaner.fullname" . }}
   labels:
-  {{- include "sidecar-cleanup.labels" . | nindent 4 }}
+  {{- include "sidecar-cleaner.labels" . | nindent 4 }}
 rules:
   - apiGroups: [""]
     resources: ["pods"]

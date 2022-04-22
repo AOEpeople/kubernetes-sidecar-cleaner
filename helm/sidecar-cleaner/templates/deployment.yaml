@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "sidecar-cleanup.fullname" . }}
+  name: {{ include "sidecar-cleaner.fullname" . }}
   labels:
-    {{- include "sidecar-cleanup.labels" . | nindent 4 }}
+    {{- include "sidecar-cleaner.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "sidecar-cleanup.selectorLabels" . | nindent 6 }}
+      {{- include "sidecar-cleaner.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -16,13 +16,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "sidecar-cleanup.selectorLabels" . | nindent 8 }}
+        {{- include "sidecar-cleaner.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "sidecar-cleanup.serviceAccountName" . }}
+      serviceAccountName: {{ include "sidecar-cleaner.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
