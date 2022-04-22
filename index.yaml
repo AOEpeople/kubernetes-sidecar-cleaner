@@ -3,6 +3,17 @@ entries:
   sidecar-cleaner:
   - apiVersion: v2
     appVersion: v0.1.0
+    created: "2022-04-22T16:11:26.820433662Z"
+    description: A simple app to watch and clean up istio-proxy sidecars in kubernetes
+      Jobs with /quitquitquit
+    digest: 651702d203921cfe0137f76407451acde22f6bcf0e66a93034b5f0d66a851acd
+    name: sidecar-cleaner
+    type: application
+    urls:
+    - https://github.com/AOEpeople/kubernetes-sidecar-cleaner/releases/download/sidecar-cleaner-0.3.0/sidecar-cleaner-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: v0.1.0
     created: "2022-04-22T14:10:23.81829971Z"
     description: A simple app to watch and clean up istio-proxy sidecars in kubernetes
       Jobs with /quitquitquit
@@ -23,4 +34,4 @@ entries:
     urls:
     - https://github.com/AOEpeople/kubernetes-sidecar-cleaner/releases/download/sidecar-cleaner-0.1.0/sidecar-cleaner-0.1.0.tgz
     version: 0.1.0
-generated: "2022-04-22T14:10:23.81830731Z"
+generated: "2022-04-22T16:11:26.820445662Z"
