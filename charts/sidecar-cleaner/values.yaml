@@ -8,8 +8,7 @@ image:
   repository: "ghcr.io/aoepeople/kubernetes-sidecar-cleaner"
   tag: ""
 
-imagePullSecrets:
-  - name: aws-eks
+imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
