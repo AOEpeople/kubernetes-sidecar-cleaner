@@ -36,8 +36,8 @@ Common labels
 {{- define "sidecar-cleaner.labels" -}}
 helm.sh/chart: {{ include "sidecar-cleaner.chart" . }}
 {{ include "sidecar-cleaner.selectorLabels" . }}
-version: {{ (split ":" .Values.image)._1 | default "latest" }}
-app.kubernetes.io/version: {{ (split ":" .Values.image)._1 | default "latest" }}
+version: {{ default .Chart.AppVersion .Values.image.tag }}
+app.kubernetes.io/version: {{ default .Chart.AppVersion .Values.image.tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
