@@ -4,7 +4,9 @@
 
 replicaCount: 1
 
-image: ""
+image:
+  repository: "ghcr.io/aoepeople/kubernetes-sidecar-cleaner"
+  tag: ""
 
 imagePullSecrets:
   - name: aws-eks
