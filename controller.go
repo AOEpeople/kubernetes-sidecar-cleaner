@@ -55,6 +55,7 @@ func (c *Controller) checkContainerStatus(key string) error {
 	}
 
 	if !exists {
+		klog.Infof("Pod with key %s not found in indexer queue", key)
 		return nil
 	}
 
@@ -64,12 +65,15 @@ func (c *Controller) checkContainerStatus(key string) error {
 
 	activeCount := 0
 	terminatedCount := 0
+	waitingAndErrored := 0
 	for _, containerStatus := range obj.(*v1.Pod).Status.ContainerStatuses {
 		if strings.HasPrefix(containerStatus.Name, "istio-") {
 			continue
 		}
-
-		if containerStatus.State.Waiting != nil || containerStatus.State.Running != nil {
+		if isWaitingAndErrored(containerStatus.State.Waiting) {
+			waitingAndErrored = waitingAndErrored + 1
+		}
+		if containerStatus.State.Running != nil {
 			activeCount = activeCount + 1
 		}
 		if containerStatus.State.Terminated != nil {
@@ -77,7 +81,9 @@ func (c *Controller) checkContainerStatus(key string) error {
 		}
 	}
 
-	if activeCount != 0 || terminatedCount == 0 {
+	klog.Infof("Pod with key %s active container %d, terminated container %d, waiting and errored container %d", key, activeCount, terminatedCount, waitingAndErrored)
+	if activeCount != 0 || (terminatedCount == 0 && waitingAndErrored == 0) {
+		klog.Infof("Pod with key will not be removed, because active container %d, terminated container %d, waiting and errored container %d", key, activeCount, terminatedCount, waitingAndErrored)
 		return nil
 	}
 
@@ -85,6 +91,10 @@ func (c *Controller) checkContainerStatus(key string) error {
 
 	return c.callback(obj.(*v1.Pod))
 
+}
+
+func isWaitingAndErrored(waiting *v1.ContainerStateWaiting) bool {
+	return waiting != nil && waiting.Reason != "ContainerCreating"
 }
 
 // handleErr checks if an error happened and makes sure we will retry later.

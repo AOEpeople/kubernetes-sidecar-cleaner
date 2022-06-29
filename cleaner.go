@@ -24,7 +24,9 @@ func NewCleaner(config *rest.Config, client rest.Interface) *Cleaner {
 
 //CanProcess checks a pod whether a cleanup process for the istio-proxy is required or not
 func (c *Cleaner) CanProcess(pod *v1.Pod) bool {
-	return isOwnedByJob(pod) && isRunning(pod) && hasIstioSidecar(pod) && !hasEmbeddedSidecarCleanup(pod)
+	condition := isOwnedByJob(pod) && hasIstioSidecar(pod) && !hasEmbeddedSidecarCleanup(pod) && (isRunningOrPending(pod) || isPendingContainerError(pod))
+	klog.Infof("CanProcess for Pod with name %s returns %v", pod.GetName(), condition)
+	return condition
 }
 
 //ProcessCallback is triggered once a pod has only the istio related container left running
@@ -74,8 +76,24 @@ func isOwnedByJob(pod *v1.Pod) bool {
 	return false
 }
 
-func isRunning(pod *v1.Pod) bool {
-	return pod.Status.Phase == v1.PodRunning
+func isRunningOrPending(pod *v1.Pod) bool {
+	return pod.Status.Phase == v1.PodRunning || pod.Status.Phase == v1.PodPending
+}
+
+func isPendingContainerError(pod *v1.Pod) bool {
+	if pod.Status.Phase == v1.PodPending {
+		for _, containerStatus := range pod.Status.ContainerStatuses {
+			if containerStatus.State.Waiting != nil {
+				if containerStatus.State.Waiting.Reason != "ContainerCreating" {
+					klog.Infof("Pending Pod with ContainerStatus %s in container with image %s",
+						containerStatus.State.Waiting.Reason,
+						containerStatus.Image)
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 func hasIstioSidecar(pod *v1.Pod) bool {

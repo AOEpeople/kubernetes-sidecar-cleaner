@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"k8s.io/klog/v2"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -61,6 +62,8 @@ func main() {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
 			if err == nil {
 				queue.Add(key)
+			} else {
+				klog.Errorf("AddFunc: Error adding pod to queue: %s", err.Error())
 			}
 		},
 		UpdateFunc: func(old interface{}, new interface{}) {
@@ -71,6 +74,8 @@ func main() {
 			key, err := cache.MetaNamespaceKeyFunc(new)
 			if err == nil {
 				queue.Add(key)
+			} else {
+				klog.Errorf("UpdateFunc: Error adding pod to queue: %s", err.Error())
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -79,6 +84,8 @@ func main() {
 			key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
 			if err == nil {
 				queue.Add(key)
+			} else {
+				klog.Errorf("DeleteFunc: Error adding pod to queue: %s", err.Error())
 			}
 		},
 	}, cache.Indexers{})
