@@ -64,6 +64,7 @@ func (c *Controller) checkContainerStatus(key string) error {
 
 	activeCount := 0
 	terminatedCount := 0
+	errorCount := 0
 	for _, containerStatus := range obj.(*v1.Pod).Status.ContainerStatuses {
 		if strings.HasPrefix(containerStatus.Name, "istio-") {
 			continue
@@ -74,10 +75,13 @@ func (c *Controller) checkContainerStatus(key string) error {
 		}
 		if containerStatus.State.Terminated != nil {
 			terminatedCount = terminatedCount + 1
+			if containerStatus.State.Terminated.Reason == "Error" && obj.(*v1.Pod).Spec.RestartPolicy != "Never" {
+				errorCount = errorCount + 1
+			}
 		}
 	}
 
-	if activeCount != 0 || terminatedCount == 0 {
+	if activeCount != 0 || terminatedCount == 0 || errorCount != 0 {
 		return nil
 	}
 
