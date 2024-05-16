@@ -58,6 +58,11 @@ func (c *Controller) checkContainerStatus(key string) error {
 		return nil
 	}
 
+	klog.Infof("Checking Pod %s/%s (%s)", obj.(*v1.Pod).Namespace, obj.(*v1.Pod).Name, obj.(*v1.Pod).Status.Phase)
+	if obj.(*v1.Pod).Status.Phase == v1.PodFailed || obj.(*v1.Pod).Status.Phase == v1.PodSucceeded {
+		return nil
+	}
+
 	// Note that you also have to check the uid if you have a local controlled resource, which
 	// is dependent on the actual instance, to detect that a Pod was recreated with the same name
 	//fmt.Printf("Sync/Add/Update for Pod %s\n", obj.(*v1.Pod).GetName())
