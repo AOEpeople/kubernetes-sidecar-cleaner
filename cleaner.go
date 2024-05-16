@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"time"
@@ -19,7 +20,7 @@ type Cleaner struct {
 }
 
 type CleanerCallback func(*v1.Pod) error
-type CleanerCondition func(*v1.Pod) wait.ConditionFunc
+type CleanerCondition func(*v1.Pod) wait.ConditionWithContextFunc
 
 func NewCleaner(config *rest.Config, client rest.Interface) *Cleaner {
 	return &Cleaner{restCfg: config, restClient: client}
@@ -55,7 +56,7 @@ func (c *Cleaner) ProcessCallback(condition CleanerCondition) CleanerCallback {
 		if err != nil {
 			return fmt.Errorf("%w failed running the exec on %v/%v\n%s\n%s", err, pod.Namespace, pod.Name, buf.String(), errBuf.String())
 		}
-		err = exec.Stream(remotecommand.StreamOptions{
+		err = exec.StreamWithContext(context.Background(), remotecommand.StreamOptions{
 			Stdout: buf,
 			Stderr: errBuf,
 		})
@@ -65,7 +66,7 @@ func (c *Cleaner) ProcessCallback(condition CleanerCondition) CleanerCallback {
 
 		klog.Infof("removing %s done, waiting until it's stopped: %s", pod.GetName(), buf.String())
 
-		err = wait.PollImmediate(time.Second, 10*time.Second, condition(pod))
+		err = wait.PollUntilContextTimeout(context.Background(), time.Second, 10*time.Second, true, condition(pod))
 		return err
 	}
 }

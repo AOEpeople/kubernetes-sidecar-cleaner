@@ -54,9 +54,9 @@ func main() {
 	podWatcher := cache.NewListWatchFromClient(clientset.CoreV1().RESTClient(), "pods", v1.NamespaceAll, fields.Everything())
 	cleaner := NewCleaner(config, clientset.CoreV1().RESTClient())
 
-	conditionFunc := func(pod *v1.Pod) wait.ConditionFunc {
-		return func() (done bool, err error) {
-			freshPod, err := clientset.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+	conditionFunc := func(pod *v1.Pod) wait.ConditionWithContextFunc {
+		return func(ctx context.Context) (done bool, err error) {
+			freshPod, err := clientset.CoreV1().Pods(pod.Namespace).Get(ctx, pod.Name, metav1.GetOptions{})
 			if err != nil {
 				return false, err
 			}
