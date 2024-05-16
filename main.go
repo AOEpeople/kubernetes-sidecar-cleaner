@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"k8s.io/apimachinery/pkg/util/wait"
 
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -50,6 +53,17 @@ func main() {
 
 	podWatcher := cache.NewListWatchFromClient(clientset.CoreV1().RESTClient(), "pods", v1.NamespaceAll, fields.Everything())
 	cleaner := NewCleaner(config, clientset.CoreV1().RESTClient())
+
+	conditionFunc := func(pod *v1.Pod) wait.ConditionFunc {
+		return func() (done bool, err error) {
+			freshPod, err := clientset.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+			if err != nil {
+				return false, err
+			}
+			return freshPod.Status.Phase == v1.PodSucceeded, nil
+		}
+	}
+
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
 	indexer, informer := cache.NewIndexerInformer(podWatcher, &v1.Pod{}, 0, cache.ResourceEventHandlerFuncs{
@@ -83,7 +97,7 @@ func main() {
 		},
 	}, cache.Indexers{})
 
-	controller := NewController(queue, indexer, informer, cleaner.ProcessCallback())
+	controller := NewController(queue, indexer, informer, cleaner.ProcessCallback(conditionFunc))
 
 	stop := make(chan struct{})
 	defer close(stop)

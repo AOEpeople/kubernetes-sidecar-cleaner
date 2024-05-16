@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -17,6 +19,7 @@ type Cleaner struct {
 }
 
 type CleanerCallback func(*v1.Pod) error
+type CleanerCondition func(*v1.Pod) wait.ConditionFunc
 
 func NewCleaner(config *rest.Config, client rest.Interface) *Cleaner {
 	return &Cleaner{restCfg: config, restClient: client}
@@ -28,7 +31,7 @@ func (c *Cleaner) CanProcess(pod *v1.Pod) bool {
 }
 
 // ProcessCallback is triggered once a pod has only the istio related container left running
-func (c *Cleaner) ProcessCallback() CleanerCallback {
+func (c *Cleaner) ProcessCallback(condition CleanerCondition) CleanerCallback {
 	return func(pod *v1.Pod) error {
 		klog.Infof("removing %s", pod.GetName())
 
@@ -59,7 +62,11 @@ func (c *Cleaner) ProcessCallback() CleanerCallback {
 		if err != nil {
 			return fmt.Errorf("%w failed executing on %v/%v\n%s\n%s", err, pod.Namespace, pod.Name, buf.String(), errBuf.String())
 		}
-		return nil
+
+		klog.Infof("removing %s done, waiting until it's stopped: %s", pod.GetName(), buf.String())
+
+		err = wait.PollImmediate(time.Second, 10*time.Second, condition(pod))
+		return err
 	}
 }
 
