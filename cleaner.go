@@ -22,12 +22,12 @@ func NewCleaner(config *rest.Config, client rest.Interface) *Cleaner {
 	return &Cleaner{restCfg: config, restClient: client}
 }
 
-//CanProcess checks a pod whether a cleanup process for the istio-proxy is required or not
+// CanProcess checks a pod whether a cleanup process for the istio-proxy is required or not
 func (c *Cleaner) CanProcess(pod *v1.Pod) bool {
 	return isOwnedByJob(pod) && isRunning(pod) && hasIstioSidecar(pod) && !hasEmbeddedSidecarCleanup(pod)
 }
 
-//ProcessCallback is triggered once a pod has only the istio related container left running
+// ProcessCallback is triggered once a pod has only the istio related container left running
 func (c *Cleaner) ProcessCallback() CleanerCallback {
 	return func(pod *v1.Pod) error {
 		klog.Infof("removing %s", pod.GetName())
@@ -42,7 +42,7 @@ func (c *Cleaner) ProcessCallback() CleanerCallback {
 			SubResource("exec").
 			VersionedParams(&v1.PodExecOptions{
 				Container: IstioProxy,
-				Command:   []string{"/bin/sh", "-c", "curl --max-time 2 -s -f -XPOST http://127.0.0.1:15000/quitquitquit"},
+				Command:   []string{"pilot-agent", "request", "POST", "/quitquitquit"},
 				Stdin:     false,
 				Stdout:    true,
 				Stderr:    true,
