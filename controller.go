@@ -44,9 +44,6 @@ func (c *Controller) processNextItem() bool {
 	return true
 }
 
-// checkContainerStatus is the business logic of the controller. In this controller it simply prints
-// information about the pod to stdout. In case an error happened, it has to simply return the error.
-// The retry logic should not be part of the business logic.
 func (c *Controller) checkContainerStatus(key string) error {
 	obj, exists, err := c.indexer.GetByKey(key)
 	if err != nil {
