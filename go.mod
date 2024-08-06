@@ -2,7 +2,7 @@ module aoepeople-quitquitquit-sidecar
 
 go 1.22.0
 
-toolchain go1.22.3
+toolchain go1.22.6
 
 require (
 	k8s.io/api v0.30.2
