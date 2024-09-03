@@ -1,5 +1,10 @@
 # kubernetes-sidecar-cleaner
 
+
+> [!CAUTION]
+> With the adoption of native SidecarContainers this project is obsolete and is not needed for Istio running on Kubernetes 1.29 and later. Fur further details please consult the [Istio documentation](https://istio.io/latest/blog/2023/native-sidecars/).
+
+
 A simple app to watch and clean up istio-proxy sidecars in kubernetes Jobs with /quitquitquit.
 
 ## Installation
